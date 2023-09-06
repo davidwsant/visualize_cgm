@@ -83,6 +83,20 @@ if not output:
 
 cgm_df = pd.read_csv(input_file)
 cgm_df = cgm_df[cgm_df['Event Type'] == 'EGV'] # remove any of the rows that don't show glucose values
+glucose_values = cgm_df['Glucose Value (mg/dL)'].values # If any "Low" or "High" values exist, change them to numbers
+if 'Low' in glucose_values or 'High' in glucose_values:
+    new_list = []
+    for value in glucose_values:
+        if value.isdigit():
+            new_list.append(int(value))
+        elif value == 'Low':
+            new_list.append(40) 
+        elif value == 'High':
+            new_list.append(400) 
+        else:
+            new_list.append('') 
+    cgm_df['Glucose Value (mg/dL)'] = new_list
+
 weekday_dict = {
     0: 'Monday',
     1: 'Tuesday',
@@ -136,36 +150,27 @@ for subplot_index, day in enumerate(days):
         y1 = glucose_list[i]
         y2 = glucose_list[i+1]
         line_segments.append([[x1,y1], [x2,y2]])
-        if min(y1, y2) < 60:
-            colors.append('red')
+        output_color = 'black'
+        if min(y1, y2) < 70:
+            output_color = 'blue'
+        if min(y1, y2) < 50:
+            output_color = 'red'
         elif max(y1,y2) > 180:
-            colors.append('red')
-        else:
-            colors.append('black')
+            output_color = 'blue'
+        elif max(y1, y2) > 200:
+            output_color = 'red'
+        colors.append(output_color)
 
     line_segments2 = LineCollection(line_segments, linestyles='solid', colors=colors, linewidth=3)#, alpha=0.3)
     ax[subplot_index].add_collection(line_segments2)
     ax[subplot_index].set_xlim([0, 1440])
     ax[subplot_index].set_ylim([30, 200])
-    ax[subplot_index].axvline(x=360, color='blue', linestyle='dashed')
-    ax[subplot_index].axvline(x=720, color='blue', linestyle='dashed')
-    ax[subplot_index].axvline(x=1080, color='blue', linestyle='dashed')
-    ax[subplot_index].axhline(y=100, color='blue', linestyle='dashed')
-    ax[subplot_index].axhline(y=60, color='red', linestyle='dashed')
-    ax[subplot_index].axhline(y=180, color='red', linestyle='dashed')
+    ax[subplot_index].axvline(x=360, color='orange', linestyle='dashed')
+    ax[subplot_index].axvline(x=720, color='orange', linestyle='dashed')
+    ax[subplot_index].axvline(x=1080, color='orange', linestyle='dashed')
+    ax[subplot_index].axhline(y=100, color='orange', linestyle='dashed')
+    ax[subplot_index].axhline(y=70, color='blue', linestyle='dashed')
+    ax[subplot_index].axhline(y=50, color='red', linestyle='dashed')
+    ax[subplot_index].axhline(y=180, color='blue', linestyle='dashed')
     ax[subplot_index].set(ylabel=day)
 plt.savefig(output+'.png')
-
-
-#cgm_df = cgm_df[['Timestamp (YYYY-MM-DDThh:mm:ss)','Event Type', 'Glucose Value (mg/dL)']]
-
-#print(cgm_df.head())
-#print(days)
-
-
-
-                       
-                       
-                         
-                       
-                    
