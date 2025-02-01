@@ -108,7 +108,8 @@ weekday_dict = {
 }
 def split_datetime(row):
     string_format = row['Timestamp (YYYY-MM-DDThh:mm:ss)']
-    dt_object = datetime.strptime(string_format, '%m/%d/%Y %H:%M')
+    ## dt_object = datetime.strptime(string_format, '%m/%d/%Y %H:%M')  ## this is for working with files that have been opened in Excel
+    dt_object = datetime.strptime(string_format, '%Y-%m-%dT%H:%M:%S')
     year = dt_object.year
     month = dt_object.month
     day = dt_object.day
